@@ -4,6 +4,10 @@ import android.app.Application
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
+import com.sk.testhilt.di.HelloRepository
+import com.sk.testhilt.di.HelloRepositoryImpl
+import com.sk.testhilt.di.MyViewModel
+import com.sk.testhilt.di.appModule
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -31,37 +35,3 @@ class MainActivity : AppCompatActivity() {
         hello.text = myViewModel.sayHello()
     }
 }
-
-interface HelloRepository {
-    fun giveHello(): SampleData
-}
-
-class HelloRepositoryImpl() : HelloRepository {
-    override fun giveHello() = SampleData("", 1, 2f)
-}
-
-class MyViewModel(private val repo: HelloRepository) : ViewModel() {
-    fun sayHello() = "${repo.giveHello()} from $this"
-}
-
-val appModule: Module = module {
-    single<HelloRepository> { HelloRepositoryImpl() }
-    viewModel { MyViewModel(get()) }
-}
-
-class MyApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        startKoin {
-            androidLogger(Level.NONE)
-            androidContext(this@MyApplication)
-            modules(appModule)
-        }
-    }
-}
-
-data class SampleData(
-    val a: String,
-    val b: Int,
-    val c: Float
-)
